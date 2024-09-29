@@ -11,24 +11,30 @@
 APPEND=no	# Default: Create new config file
 BOARD_NAME=""	# Name to print in make output
 TARGETS=""
-
-while [ $# -gt 0 ] ; do
+#! mkconfig smdk2410 arm arm920t smdk2410 samsung s3c24x0
+#! while 是一个循环结构，表示只要条件为真就会重复执行。
+#! [ 和 ] 是测试命令的语法糖，类似于 test 命令。
+#! $# 是一个特殊变量，表示传递给脚本的参数个数。
+#! -gt 是比较运算符，表示“greater than”（大于）。
+#! 整个条件的意思是：只要还有参数（即参数个数大于零），就进入循环。
+#! shift 命令会移除当前第一个参数，并将下一个参数作为 $1
+while [ $# -gt 0 ] ; do #! ; 是命令分隔符，表示条件判断结束，接下来是循环体的开始。 do 表示接下来要执行的命令块。
 	case "$1" in
-	--) shift ; break ;;
-	-a) shift ; APPEND=yes ;;
-	-n) shift ; BOARD_NAME="${1%%_config}" ; shift ;;
-	-t) shift ; TARGETS="`echo $1 | sed 's:_: :g'` ${TARGETS}" ; shift ;;
+	--) shift ; break ;;#!如果参数是 --，则执行 shift(移除第一个参数）并跳出循环
+	-a) shift ; APPEND=yes ;;#!如果参数是 -a,则执行 shift,并将 APPEND 变量设置为 yes。
+	-n) shift ; BOARD_NAME="${1%%_config}" ; shift ;;#!如果 $1 的值是 smdk2410_config,那么 ${1%%_config} 会将 _config 删除，结果是 smdk2410。
+	-t) shift ; TARGETS="`echo $1 | sed 's:_: :g'` ${TARGETS}" ; shift ;;#!s:这是 sed 的替换命令(substitute)。：在 sed 替换命令中使用的分隔符。你可以看到 : 被用来分隔 s 命令的各个部分。_:被替换的内容，即下划线 _。 :替换为的内容,即空格。g:表示全局替换(global)，即将所有的 _ 替换为空格，而不仅仅是第一个。
 	*)  break ;;
 	esac
 done
 
-[ "${BOARD_NAME}" ] || BOARD_NAME="$1"
+[ "${BOARD_NAME}" ] || BOARD_NAME="$1" #!BOARD_NAME = smdk2410
 
 [ $# -lt 4 ] && exit 1
 [ $# -gt 6 ] && exit 1
-
+#! -a：逻辑运算符，表示“与”（AND）
 if [ "${ARCH}" -a "${ARCH}" != "$2" ]; then
-	echo "Failed: \$ARCH=${ARCH}, should be '$2' for ${BOARD_NAME}" 1>&2
+	echo "Failed: \$ARCH=${ARCH}, should be '$2' for ${BOARD_NAME}" 1>&2 #!1>&2 是将标准输出（stdout）重定向到标准错误（stderr）的命令。
 	exit 1
 fi
 
@@ -37,14 +43,15 @@ echo "Configuring for ${BOARD_NAME} board..."
 #
 # Create link to architecture specific headers
 #
+#!如果OBJTREE是我们自己定义的路径 和SRCTREE不一样的路径
 if [ "$SRCTREE" != "$OBJTREE" ] ; then
-	mkdir -p ${OBJTREE}/include
+	mkdir -p ${OBJTREE}/include  #!在 OBJTREE 中创建两个目录 include 和 include2，如果目录不存在的话。
 	mkdir -p ${OBJTREE}/include2
-	cd ${OBJTREE}/include2
-	rm -f asm
-	ln -s ${SRCTREE}/include/asm-$2 asm
+	cd ${OBJTREE}/include2 #!进入到 include2 目录。
+	rm -f asm  #!删除 include2 目录下的 asm 符号链接文件，确保后续创建新的链接不会出错。
+	ln -s ${SRCTREE}/include/asm-$2 asm #!在 include2 目录下创建一个名为 asm 的符号链接，指向 SRCTREE 中 include/asm-$2。也就是asm-arm
 	LNPREFIX="../../include2/asm/"
-	cd ../include
+	cd ../include #!切换到 OBJTREE 中的 include 目录。
 	rm -rf asm-$2
 	rm -f asm
 	mkdir asm-$2
@@ -52,41 +59,44 @@ if [ "$SRCTREE" != "$OBJTREE" ] ; then
 else
 	cd ./include
 	rm -f asm
-	ln -s asm-$2 asm
+	ln -s asm-$2 asm #!在 include 目录下创建一个新的符号链接 asm，指向 asm-$2，确保所有指向 asm 的请求都将指向 asm-$2 这个架构相关的目录。
 fi
+#? 符号链接  /include/asm -> asm-arm
 
 rm -f asm-$2/arch
-
-if [ -z "$6" -o "$6" = "NULL" ] ; then
+#! $6 = s3c24x0
+#? 符号链接  /include/arch -> arch-s3c24x0
+if [ -z "$6" -o "$6" = "NULL" ] ; then #! -z "$6"：检查变量 $6 是否为空。如果 $6 没有值（即为空字符串），条件为真。 -o：逻辑“或”运算符。
 	ln -s ${LNPREFIX}arch-$3 asm-$2/arch
 else
-	ln -s ${LNPREFIX}arch-$6 asm-$2/arch
+	ln -s ${LNPREFIX}arch-$6 asm-$2/arch #!如果OBJTREE和SRCTREE的路径是一样的
 fi
 
 if [ "$2" = "arm" ] ; then
 	rm -f asm-$2/proc
-	ln -s ${LNPREFIX}proc-armv asm-$2/proc
+	ln -s ${LNPREFIX}proc-armv asm-$2/proc #? 符号链接  /include/asm-arm/proc -> proc-armv
 fi
 
 #
 # Create include file for Make
 #
-echo "ARCH   = $2" >  config.mk
-echo "CPU    = $3" >> config.mk
-echo "BOARD  = $4" >> config.mk
+echo "ARCH   = $2" >  config.mk #! ARCH   = arm
+echo "CPU    = $3" >> config.mk #! CPU    = arm920t
+echo "BOARD  = $4" >> config.mk #! BOARD  = smdk2410
+#! samsung s3c24x0
+[ "$5" ] && [ "$5" != "NULL" ] && echo "VENDOR = $5" >> config.mk #!VENDOR = samsung
 
-[ "$5" ] && [ "$5" != "NULL" ] && echo "VENDOR = $5" >> config.mk
-
-[ "$6" ] && [ "$6" != "NULL" ] && echo "SOC    = $6" >> config.mk
+[ "$6" ] && [ "$6" != "NULL" ] && echo "SOC    = $6" >> config.mk #!SOC    = s3c24x0
 
 #
 # Create board specific header file
 #
+#!"$APPEND"：将变量 APPEND 的值放在双引号中，以防止其值为空或包含空格而导致语法错误。
 if [ "$APPEND" = "yes" ]	# Append to existing config file
 then
-	echo >> config.h
+	echo >> config.h #!echo：这是一个用于打印空行的命令。>> config.h：这个操作符表示将输出追加到 config.h 文件的末尾。如果文件不存在，则会创建该文件。
 else
-	> config.h		# Create new config file
+	> config.h		# Create new config file #!创建一个新的 config.h 文件（如果文件已经存在，则会先清空该文件）。
 fi
 echo "/* Automatically generated - do not edit */" >>config.h
 
@@ -94,7 +104,7 @@ for i in ${TARGETS} ; do
 	echo "#define CONFIG_MK_${i} 1" >>config.h ;
 done
 
-echo "#include <configs/$1.h>" >>config.h
+echo "#include <configs/$1.h>" >>config.h #! #include <configs/smdk2410.h>
 echo "#include <asm/config.h>" >>config.h
 
 exit 0
