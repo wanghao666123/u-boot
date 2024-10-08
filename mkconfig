@@ -11,7 +11,7 @@
 APPEND=no	# Default: Create new config file
 BOARD_NAME=""	# Name to print in make output
 TARGETS=""
-#! mkconfig smdk2410 arm arm920t smdk2410 samsung s3c24x0
+#!mkconfig smdk2410 arm arm920t smdk2410 samsung s3c24x0
 #! while 是一个循环结构，表示只要条件为真就会重复执行。
 #! [ 和 ] 是测试命令的语法糖，类似于 test 命令。
 #! $# 是一个特殊变量，表示传递给脚本的参数个数。
@@ -20,10 +20,10 @@ TARGETS=""
 #! shift 命令会移除当前第一个参数，并将下一个参数作为 $1
 while [ $# -gt 0 ] ; do #! ; 是命令分隔符，表示条件判断结束，接下来是循环体的开始。 do 表示接下来要执行的命令块。
 	case "$1" in
-	--) shift ; break ;;#!如果参数是 --，则执行 shift(移除第一个参数）并跳出循环
-	-a) shift ; APPEND=yes ;;#!如果参数是 -a,则执行 shift,并将 APPEND 变量设置为 yes。
-	-n) shift ; BOARD_NAME="${1%%_config}" ; shift ;;#!如果 $1 的值是 smdk2410_config,那么 ${1%%_config} 会将 _config 删除，结果是 smdk2410。
-	-t) shift ; TARGETS="`echo $1 | sed 's:_: :g'` ${TARGETS}" ; shift ;;#!s:这是 sed 的替换命令(substitute)。：在 sed 替换命令中使用的分隔符。你可以看到 : 被用来分隔 s 命令的各个部分。_:被替换的内容，即下划线 _。 :替换为的内容,即空格。g:表示全局替换(global)，即将所有的 _ 替换为空格，而不仅仅是第一个。
+	--) shift ; break ;;	#!如果参数是 --，则执行 shift(移除第一个参数）并跳出循环
+	-a) shift ; APPEND=yes ;;	#!如果参数是 -a,则执行 shift,并将 APPEND 变量设置为 yes。
+	-n) shift ; BOARD_NAME="${1%%_config}" ; shift ;;	#!如果 $1 的值是 smdk2410_config,那么 ${1%%_config} 会将 _config 删除，结果是 smdk2410。
+	-t) shift ; TARGETS="`echo $1 | sed 's:_: :g'` ${TARGETS}" ; shift ;;	#!s:这是 sed 的替换命令(substitute)。：在 sed 替换命令中使用的分隔符。你可以看到 : 被用来分隔 s 命令的各个部分。_:被替换的内容，即下划线 _。 :替换为的内容,即空格。g:表示全局替换(global)，即将所有的 _ 替换为空格，而不仅仅是第一个。
 	*)  break ;;
 	esac
 done
