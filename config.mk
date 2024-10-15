@@ -99,7 +99,7 @@ ifdef	SOC
 sinclude $(TOPDIR)/cpu/$(CPU)/$(SOC)/config.mk	# include  SoC	specific rules
 endif
 ifdef	VENDOR
-BOARDDIR = $(VENDOR)/$(BOARD) #!BOARDDIR = samsung/smdk2410
+BOARDDIR = $(VENDOR)/$(BOARD)#!BOARDDIR = samsung/smdk2410
 else
 BOARDDIR = $(BOARD)
 endif
