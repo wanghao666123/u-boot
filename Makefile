@@ -299,11 +299,14 @@ export PLATFORM_LIBS
 # Special flags for CPP when processing the linker script.
 # Pass the version down so we can handle backwards compatibility
 # on the fly.
+#!-include 选项用于强制在编译过程中包含指定的头文件，即使在源文件中没有显式地用 #include 指令引用。
+#!检查链接器的版本
+#!如果链接器版本是 GNU ld version 2.35.1，则最终会生成的编译标志类似于： -DLD_MAJOR=2 -DLD_MINOR=35
 LDPPFLAGS += \
 	-include $(TOPDIR)/include/u-boot/u-boot.lds.h \
 	$(shell $(LD) --version | \
 	  sed -ne 's/GNU ld version \([0-9][0-9]*\)\.\([0-9][0-9]*\).*/-DLD_MAJOR=\1 -DLD_MINOR=\2/p')
-
+#！LDPPFLAGS += -include $(TOPDIR)/include/u-boot/u-boot.lds.h -DLD_MAJOR=2 -DLD_MINOR=34
 ifeq ($(CONFIG_NAND_U_BOOT),y)
 NAND_SPL = nand_spl
 U_BOOT_NAND = $(obj)u-boot-nand.bin
@@ -506,7 +509,7 @@ $(obj)include/autoconf.mk: $(obj)include/config.h
 	mv $@.tmp $@
 
 #########################################################################
-else	# !config.mk
+else	# !config.mk   这里是如果没有先执行make smdk2410_config的命令就直接执行make命令
 all $(obj)u-boot.hex $(obj)u-boot.srec $(obj)u-boot.bin \
 $(obj)u-boot.img $(obj)u-boot.dis $(obj)u-boot \
 $(SUBDIRS) $(TIMESTAMP_FILE) $(VERSION_FILE) gdbtools updater env depend \

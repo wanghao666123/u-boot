@@ -1,5 +1,12 @@
 {
     "files.associations": {
         "config.h": "c"
-    }
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/wh/wh_repository/s3c2440/u-boot-2009.11",
+            "binaryPath": "/home/wh/wh_repository/s3c2440/u-boot-2009.11/u-boot",
+            "binaryArgs": []
+        }
+    ]
 }
