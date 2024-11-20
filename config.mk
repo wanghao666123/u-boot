@@ -71,7 +71,7 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 #
 # Include the make variables (CC, etc...)
 #
-#!CROSS_COMPILE为空
+#!CROSS_COMPILE为arm-linux-
 AS	= $(CROSS_COMPILE)as
 LD	= $(CROSS_COMPILE)ld
 CC	= $(CROSS_COMPILE)gcc

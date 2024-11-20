@@ -1,6 +1,7 @@
 {
     "files.associations": {
-        "config.h": "c"
+        "config.h": "c",
+        "smdk2410.h": "c"
     },
     "makefile.launchConfigurations": [
         {
