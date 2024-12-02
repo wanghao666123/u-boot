@@ -38,7 +38,7 @@ TOOLSUBDIRS =
 
 HOSTCFLAGS = -Wall
 HOST_LDFLAGS =
-
+#!HOSTOS = linux HOSTARCH = arm
 ifeq ($(HOSTOS)-$(HOSTARCH),darwin-ppc)
 HOSTCFLAGS += -traditional-cpp
 HOST_LDFLAGS += -multiply_defined suppress
@@ -49,6 +49,8 @@ endif
 ifeq ($(HOSTOS),cygwin)
 HOSTCFLAGS += -ansi
 endif
+
+#!HOSTCFLAGS += -Wall -pedantic
 
 #
 # toolchains targeting win32 generate .exe files

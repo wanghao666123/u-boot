@@ -173,24 +173,29 @@ endif
 
 # The "tools" are needed early, so put this first
 # Don't include stuff already done in $(LIBS)
-#? STEP 16: 设置SUBDIRS的值，并且设置为伪目标，在执行make命令时，all会依赖$(SUBDIRS)，进而会执行这三个路径下的makefile
+#? STEP 16: 设置SUBDIRS的值，并且设置为伪目标，在执行make命令时，all会依赖$(SUBDIRS)，进而会执行这三个路径下的makefile,这里不会先执行，all先执行
 SUBDIRS	= tools \
 	  examples/standalone \
 	  examples/api
 #!.PHONY 用于声明“伪目标”（phony targets），它的作用是告诉 make，这些目标不是文件名，而是命令名或任务名，从而避免 make 把它们当作文件进行处理。
+#!$(SUBDIRS):	depend
+#!		$(MAKE) -C $@ all
 .PHONY : $(SUBDIRS)
 
-
+#? STEP 17:检查include/config.mk是否存在
 #!检查include/config.mk是否存在  wildcard 是 Makefile 内置函数，用来获取文件名列表。
 ifeq ($(obj)include/config.mk,$(wildcard $(obj)include/config.mk))
 
 # Include autoconf.mk before config.mk so that the config options are available
 # to all top level build files.  We need the dummy all: target to prevent the
 # dependency target in autoconf.mk.dep from being the default.
+#? STEP 18:开始真正意义的执行make构建
 all:#!这是 Makefile 的默认目标，表示如果直接执行 make 命令，会执行 all 目标指定的任务。
+#? STEP 19:引用头文件 ，即加载一些宏定义和头文件
 sinclude $(obj)include/autoconf.mk.dep#!sinclude 是 Makefile 的一条指令，用于包含其他 Makefile 文件，通常用于将配置文件或依赖文件纳入构建流程中。
 sinclude $(obj)include/autoconf.mk
 
+#? STEP 20:加载并执行include/config.mk中的内容，并将ARCH CPU BOARD VENDOR SOC导出
 # load ARCH, BOARD, and CPU configuration
 include $(obj)include/config.mk
 export	ARCH CPU BOARD VENDOR SOC
