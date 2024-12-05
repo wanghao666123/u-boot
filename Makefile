@@ -415,7 +415,10 @@ $(LIBS):	depend $(SUBDIRS)
 
 $(LIBBOARD):	depend $(LIBS)
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
-
+#!SUBDIRS	= tools \
+#!	  examples/standalone \
+#!    examples/api
+#!这会将上面这三个文件下的makefile全部执行一遍
 $(SUBDIRS):	depend
 		$(MAKE) -C $@ all
 

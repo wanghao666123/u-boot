@@ -55,6 +55,7 @@ endif
 #
 # toolchains targeting win32 generate .exe files
 #
+#!判断是不是windows系统
 ifneq (,$(findstring WIN32 ,$(shell $(HOSTCC) -E -dM -xc /dev/null)))
 SFX = .exe
 else
@@ -65,6 +66,7 @@ endif
 # Include this after HOSTOS HOSTARCH check
 # so that we can act intelligently.
 #
+#!这里要执行$(TOPDIR)/config.mk
 include $(TOPDIR)/config.mk
 
 # Generated executable files
