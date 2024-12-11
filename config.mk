@@ -22,6 +22,7 @@
 #
 
 #########################################################################
+#?STEP01：判断OBJTREE和SRCTREE路径是否相同，不相同，设置obj和src分别为OBJTREE和SRCTREE，并创建obj文件夹，相同obj和src都为空
 #!OBJTREE和SRCTREE路径相等，所以下面不会执行
 ifneq ($(OBJTREE),$(SRCTREE))
 ifeq ($(CURDIR),$(SRCTREE))
@@ -40,18 +41,21 @@ src :=
 endif
 #!最终obj和src都为空
 # clean the slate ...
+#?STEP02：将PLATFORM_RELFLAGS，PLATFORM_CPPFLAGS和PLATFORM_LDFLAGS都置空
 PLATFORM_RELFLAGS =
 PLATFORM_CPPFLAGS =
 PLATFORM_LDFLAGS =
 
 #########################################################################
 #!HOSTOS = linux
+#?STEP03：根据HOSTOS的值，设置HOSTCC值
 ifeq ($(HOSTOS),darwin)
 HOSTCC		= cc
 else
 HOSTCC		= gcc
 endif
 #!HOSTCC = gcc
+#?STEP04：设置HOSTCFLAGS和HOSTSTRIP值
 #!-Wall：启用所有常见的编译警告。使用这个选项可以帮助开发者发现代码中的潜在问题或非最佳实践的用法。
 #!-Wstrict-prototypes：要求在 C 函数声明中使用严格的原型声明。如果函数的参数类型不明确，它会发出警告。这对于提高代码的类型安全性和可读性很有帮助。
 #!-O2：启用编译器的优化等级 2。在这个优化级别，编译器会对代码进行相当多的优化，以提高生成代码的执行效率，但不会像更高级别（例如 -O3）那样激进，以保持合理的编译时间和代码大小。
@@ -64,6 +68,7 @@ HOSTSTRIP	= strip
 # Option checker (courtesy linux kernel) to ensure
 # only supported compiler options are used
 #
+#?STEP05：设置cc-option值，方便后续调用cc-option
 #!根据指定的编译选项，检查编译器是否支持该选项。如果支持，它会返回该选项；如果不支持，它会返回一个替代选项或空字符串
 cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 		> /dev/null 2>&1; then echo "$(1)"; else echo "$(2)"; fi ;)
@@ -71,6 +76,7 @@ cc-option = $(shell if $(CC) $(CFLAGS) $(1) -S -o /dev/null -xc /dev/null \
 #
 # Include the make variables (CC, etc...)
 #
+#?STEP06：设置AS，LD，CC，CPP，AR，NM，LDR，STRIP，OBJCOPY，OBJDUMP，RANLIB
 #!CROSS_COMPILE为arm-linux-
 AS	= $(CROSS_COMPILE)as
 LD	= $(CROSS_COMPILE)ld
@@ -87,8 +93,14 @@ RANLIB	= $(CROSS_COMPILE)RANLIB
 #########################################################################
 
 # Load generated board configuration
+#?STEP07：加载/include/autoconf.mk，这个文件中是关于当前s3c2440开发板的相关板卡配置，这里即使$(OBJTREE)/include/autoconf.mk不存在也不会影响程序继续运行
 sinclude $(OBJTREE)/include/autoconf.mk
-
+#?STEP08：ARCH，CPU，SOC，VENDOR，BOARD在顶层的makefile中就已经export出，在这里只是去判断，即使$(OBJTREE)/include/autoconf.mk不存在也不影响程序继续运行
+#ARCH   = arm
+#CPU    = arm920t
+#BOARD  = smdk2410
+#VENDOR = samsung
+#SOC    = s3c24x0
 ifdef	ARCH
 sinclude $(TOPDIR)/lib_$(ARCH)/config.mk	# include architecture dependend rules
 endif
