@@ -36,6 +36,7 @@ endif
 PLATFORM_CPPFLAGS += -DCONFIG_ARM -D__ARM__
 
 # Explicitly specifiy 32-bit ARM ISA since toolchain default can be -mthumb:
+#!表示如果支持，则直接返回 -marm；如果不支持，则返回空字符串
 PLATFORM_CPPFLAGS += $(call cc-option,-marm,)
 
 # Try if EABI is supported, else fall back to old API,

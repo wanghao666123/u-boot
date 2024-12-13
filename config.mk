@@ -108,7 +108,7 @@ ifdef	CPU
 sinclude $(TOPDIR)/cpu/$(CPU)/config.mk		# include  CPU	specific rules
 endif
 ifdef	SOC
-sinclude $(TOPDIR)/cpu/$(CPU)/$(SOC)/config.mk	# include  SoC	specific rules
+sinclude $(TOPDIR)/cpu/$(CPU)/$(SOC)/config.mk	# include  SoC	specific rules 没有这个文件
 endif
 ifdef	VENDOR
 BOARDDIR = $(VENDOR)/$(BOARD)#!BOARDDIR = samsung/smdk2410
@@ -120,12 +120,13 @@ sinclude $(TOPDIR)/board/$(BOARDDIR)/config.mk	# include board specific rules   
 endif
 
 #########################################################################
-
+#?STEP09：判断输入命令时是否是make -s
 ifneq (,$(findstring s,$(MAKEFLAGS)))
 ARFLAGS = cr
 else
 ARFLAGS = crv
 endif
+#?STEP10：设置一些编译参数
 RELFLAGS= $(PLATFORM_RELFLAGS) #! 为空
 DBGFLAGS= -g #!-DDEBUG -g：告诉编译器在生成目标文件时包含调试信息。这样，调试工具（如 GDB）就可以使用这些信息来帮助开发人员定位代码中的问题。
 OPTFLAGS= -Os #!-fomit-frame-pointer  -Os：是一个编译器优化选项，它的作用是优化代码以减小最终生成的可执行文件的大小，同时尽量保持执行速度不显著降低。它是一个介于 -O2 和 -O3 之间的优化级别，但优先考虑减少代码体积。
@@ -228,15 +229,16 @@ else
 BFD_ROOT_DIR =		/opt/powerpc
 endif
 endif
-
+#!BFD_ROOT_DIR =		/usr
 #########################################################################
-
+#?STEP11：导出变量供其他makefile使用
 export	HOSTCC HOSTCFLAGS CROSS_COMPILE \
 	AS LD CC CPP AR NM STRIP OBJCOPY OBJDUMP MAKE
 export	TEXT_BASE PLATFORM_CPPFLAGS PLATFORM_RELFLAGS CPPFLAGS CFLAGS AFLAGS
 
 #########################################################################
-
+#?STEP12：定义GNU Make的隐式规则
+#!$@：目标文件，即 $(obj)%.s  $<：第一个依赖文件，即 %.S
 # Allow boards to use custom optimize flags on a per dir/file basis
 BCURDIR := $(notdir $(CURDIR))
 $(obj)%.s:	%.S

@@ -35,7 +35,7 @@ TOOLSUBDIRS =
 # multiple symbol definitions are treated as errors, hence the
 # -multiply_defined suppress option to turn off this error.
 #
-
+#?STEP01：设置一些编译参数
 HOSTCFLAGS = -Wall
 HOST_LDFLAGS =
 #!HOSTOS = linux HOSTARCH = arm
@@ -55,7 +55,7 @@ endif
 #
 # toolchains targeting win32 generate .exe files
 #
-#!判断是不是windows系统
+#?STEP02：判断是不是windows系统
 ifneq (,$(findstring WIN32 ,$(shell $(HOSTCC) -E -dM -xc /dev/null)))
 SFX = .exe
 else
@@ -66,6 +66,7 @@ endif
 # Include this after HOSTOS HOSTARCH check
 # so that we can act intelligently.
 #
+#?STEP03：执行$(TOPDIR)/config.mk，定义一些编译参数，导出一些变量，定义一些GNU Make隐式规则
 #!这里要执行$(TOPDIR)/config.mk
 include $(TOPDIR)/config.mk
 
