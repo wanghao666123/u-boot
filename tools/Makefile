@@ -71,6 +71,7 @@ endif
 include $(TOPDIR)/config.mk
 
 # Generated executable files
+#!？？？
 BIN_FILES-$(CONFIG_LCD_LOGO) += bmp_logo$(SFX)
 BIN_FILES-$(CONFIG_VIDEO_LOGO) += bmp_logo$(SFX)
 BIN_FILES-$(CONFIG_ENV_IS_EMBEDDED) += envcrc$(SFX)

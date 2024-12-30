@@ -3118,7 +3118,21 @@ sheevaplug_config: unconfig
 
 smdk2400_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2400 samsung s3c24x0
+#! make smdk2410_config
 #! mkconfig smdk2410 arm arm920t smdk2410 samsung s3c24x0
+#? STEP01: 创建到目标板相关文件的链接
+#!	ln -s asm-arm asm
+#!	ln -s arch-s3c24x0 asm-arm/arch
+#!	ln -s proc-armv asm-arm/proc
+#? STEP02: 创建include/config.mk文件
+#! 	ARCH   = arm
+#! 	CPU    = arm920t
+#! 	BOARD  = smdk2410
+#! 	VENDOR = samsung
+#! 	SOC    = s3c24x0
+#? STEP03: 创建与目标板相关的头文件include/config.h
+#! 	#include <configs/smdk2410.h>
+#!  #include <asm/config.h>
 smdk2410_config	:	unconfig
 	@$(MKCONFIG) $(@:_config=) arm arm920t smdk2410 samsung s3c24x0
 
