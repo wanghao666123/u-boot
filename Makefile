@@ -399,6 +399,7 @@ GEN_UBOOT = \
 			-Map u-boot.map -o u-boot
 $(obj)u-boot:	depend $(SUBDIRS) $(OBJS) $(LIBBOARD) $(LIBS) $(LDSCRIPT) $(obj)u-boot.lds
 		$(GEN_UBOOT)
+#!CONFIG_KALLSYMS并没有定义，所以不会执行下面的代码
 ifeq ($(CONFIG_KALLSYMS),y)
 		smap=`$(call SYSTEM_MAP,u-boot) | \
 			awk '$$2 ~ /[tTwW]/ {printf $$1 $$3 "\\\\000"}'` ; \
@@ -407,12 +408,13 @@ ifeq ($(CONFIG_KALLSYMS),y)
 		$(GEN_UBOOT) $(obj)common/system_map.o
 endif
 
+#!OBJS = cpu/arm920t/start.o
 $(OBJS):	depend
 		$(MAKE) -C cpu/$(CPU) $(if $(REMOTE_BUILD),$@,$(notdir $@))
-
+#!进入对应的子目录执行make命令编译对应的目标文件
 $(LIBS):	depend $(SUBDIRS)
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
-
+#!LIBBOARD = u-boot-2009.11/board/samsung/smdk2410/libsmdk2410.a
 $(LIBBOARD):	depend $(LIBS)
 		$(MAKE) -C $(dir $(subst $(obj),,$@))
 #!SUBDIRS	= tools \
@@ -421,10 +423,10 @@ $(LIBBOARD):	depend $(LIBS)
 #!这会将上面这三个文件下的makefile全部执行一遍
 $(SUBDIRS):	depend
 		$(MAKE) -C $@ all
-
+#!$(LDSCRIPT) = u-boot-2009.11/board/samsung/smdk2410/u-boot.lds
 $(LDSCRIPT):	depend
 		$(MAKE) -C $(dir $@) $(notdir $@)
-
+#!$(obj)u-boot.lds = u-boot-2009.11/u-boot.lds
 $(obj)u-boot.lds: $(LDSCRIPT)
 		$(CPP) $(CPPFLAGS) $(LDPPFLAGS) -ansi -D__ASSEMBLY__ -P - <$^ >$@
 
@@ -459,6 +461,7 @@ updater:
 env:
 		$(MAKE) -C tools/env all MTD_VERSION=${MTD_VERSION} || exit 1
 
+#!执行该规则将依次进入$(SUBDIRS)表示的子目录中，并执行 make _depend 命令，生成各个子目录的.depend文件，在.depend文件中列出每个目标文件的依赖文件
 depend dep:	$(TIMESTAMP_FILE) $(VERSION_FILE) $(obj)include/autoconf.mk
 		for dir in $(SUBDIRS) ; do $(MAKE) -C $$dir _depend ; done
 
