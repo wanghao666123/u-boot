@@ -1,8 +1,8 @@
 /*
  *  armboot - Startup Code for ARM920 CPU-core
  *
- *  Copyright (c) 2001	Marius Gr�ger <mag@sysgo.de>
- *  Copyright (c) 2002	Alex Z�pke <azu@sysgo.de>
+ *  Copyright (c) 2001	Marius Gr�ger <mag@sysgo.de>
+ *  Copyright (c) 2002	Alex Z�pke <azu@sysgo.de>
  *  Copyright (c) 2002	Gary Jennejohn <garyj@denx.de>
  *
  * See file CREDITS for list of people who contributed to this
@@ -35,7 +35,7 @@
  *************************************************************************
  */
 
-
+# STEP01：设置异常向量表
 .globl _start
 _start:	b	start_code
 	ldr	pc, _undefined_instruction
@@ -104,7 +104,7 @@ FIQ_STACK_START:
 /*
  * the actual start code
  */
-
+# STEP02：CPU进入SVC模式，屏蔽IRQ/FIQ中断
 start_code:
 	/*
 	 * set the cpu to SVC32 mode
@@ -130,7 +130,7 @@ copyex:
 	str	r3, [r1], #4
 	bne	copyex
 #endif
-
+# STEP03：设置控制寄存器地址
 #if defined(CONFIG_S3C2400) || defined(CONFIG_S3C2410)
 	/* turn off the watchdog */
 
@@ -144,7 +144,7 @@ copyex:
 #  define INTSUBMSK	0x4A00001C
 #  define CLKDIVN	0x4C000014	/* clock divisor register */
 # endif
-
+# STEP04：关闭看门狗，否则在u-boot启动过程中会不断复位
 	ldr	r0, =pWTCON
 	mov	r1, #0x0
 	str	r1, [r0]
@@ -152,15 +152,17 @@ copyex:
 	/*
 	 * mask all IRQs by setting all bits in the INTMR - default
 	 */
+# STEP05：将INTMASK寄存器的值设置为0xffffffff，屏蔽所有中断
 	mov	r1, #0xffffffff
 	ldr	r0, =INTMSK
 	str	r1, [r0]
+# STEP06：将INTSUBMSK寄存器的值设置为0xffffffff，屏蔽所有中断
 # if defined(CONFIG_S3C2410)
 	ldr	r1, =0x3ff
 	ldr	r0, =INTSUBMSK
 	str	r1, [r0]
 # endif
-
+# STEP07：设置时钟分频，FCLK:HCLK:PCLK = 1:2:4
 	/* FCLK:HCLK:PCLK = 1:2:4 */
 	/* default FCLK is 120 MHz ! */
 	ldr	r0, =CLKDIVN
@@ -172,10 +174,12 @@ copyex:
 	 * we do sys-critical inits only at reboot,
 	 * not when booting from ram!
 	 */
+# STEP08：跳转到cpu_init_crit，关闭MMU、cache等
+# 若将u-boot从内存中启动，则不需要进行这些初始化
 #ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	bl	cpu_init_crit
 #endif
-
+# STEP10：复制u-boot第二阶段代码到RAM中
 #ifndef CONFIG_SKIP_RELOCATE_UBOOT
 relocate:				/* relocate U-Boot to RAM	    */
 	adr	r0, _start		/* r0 <- current position of code   */
@@ -196,6 +200,7 @@ copy_loop:
 #endif	/* CONFIG_SKIP_RELOCATE_UBOOT */
 
 	/* Set up the stack						    */
+# STEP11：设置栈
 stack_setup:
 	ldr	r0, _TEXT_BASE		/* upper 128 KiB: relocated uboot   */
 	sub	r0, r0, #CONFIG_SYS_MALLOC_LEN	/* malloc area              */
@@ -204,7 +209,7 @@ stack_setup:
 	sub	r0, r0, #(CONFIG_STACKSIZE_IRQ+CONFIG_STACKSIZE_FIQ)
 #endif
 	sub	sp, r0, #12		/* leave 3 words for abort-stack    */
-
+# STEP12：清除bss段（将bss段中存放的未初始化的全局变量、静态变量清零）
 clear_bss:
 	ldr	r0, _bss_start		/* find start of bss segment        */
 	ldr	r1, _bss_end		/* stop here                        */
@@ -216,7 +221,7 @@ clbss_l:str	r2, [r0]		/* clear loop...                    */
 	ble	clbss_l
 
 	ldr	pc, _start_armboot
-
+# STEP13：跳转到u-boot第二阶段代码
 _start_armboot:	.word start_armboot
 
 
@@ -257,7 +262,7 @@ cpu_init_crit:
 	 * find a lowlevel_init.S in your board directory.
 	 */
 	mov	ip, lr
-
+	# STEP09：初始化存储控制器，在lowlevel_init.S中实现 board/samsung/smdk2410/lowlevel_init.S中定义
 	bl	lowlevel_init
 
 	mov	lr, ip
