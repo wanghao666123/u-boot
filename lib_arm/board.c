@@ -274,6 +274,7 @@ void start_armboot (void)
 #endif
 
 	/* Pointer is writable since we allocated a register for it */
+	//!在 _armboot_start 地址之前的一个位置。这个位置是 全局数据结构 gd_t 在内存中的起始位置。
 	gd = (gd_t*)(_armboot_start - CONFIG_SYS_MALLOC_LEN - sizeof(gd_t));
 	/* compiler optimization barrier needed for GCC >= 3.4 */
 	__asm__ __volatile__("": : :"memory");
